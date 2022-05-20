@@ -5,9 +5,9 @@ import re
 
 
 support_file_type = {
-    'c':['.cc', '.c', '.cpp', '.h'],
-    'j':['.java'],
-    'o':['.mm', '.m'],
+    'c':['cc', 'c', 'cpp', 'h'],
+    'j':['java'],
+    'o':['mm', 'm'],
     # 'p':['py']
 }
 
