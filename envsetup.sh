@@ -17,4 +17,4 @@ TOOL_CODE_FORMAT=${ROOT_PATH}"/tools/code-format"
 
 export PATH=${PATH}:${TOOL_CODE_FORMAT}
 
-alias check-format="code-check.py all"
+alias check-format="code-check.py"

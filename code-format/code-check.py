@@ -3,57 +3,45 @@
 
 import os
 import sys
+import argparse
+import config
 
-ignored_dir = ["./cmake-build-debug"]
+PATH_HELP = 'The path where the formatted code file is located. \n\t The default path is the current one'
+VERBOSE_HELP = 'Whether to visualize the inspection process,on or off[default]'
+FILE_TYPE_HELP = "file Type\
+            all[default]\
+            c[c language and cpp]\
+            j[java]\
+            o[object c]"
 
-def isTargetFile(file_name, path):
-    if path is not None:
-        for i_path in ignored_dir:
-            if i_path in path:
-                return False
-    if file_name.endswith(".cc") or file_name.endswith(".h") or file_name.endswith(".cpp") or file_name.endswith(".mm") or file_name.endswith(".m") or file_name.endswith(".java"):
-        return True
-    return False
 
-def file_name_walk(file_dir):
+def check_file(file_path, file_type_list, show_process_info):
     files_map = {}
-    for root, _, files in os.walk(file_dir):
+    for root, _, files in os.walk(file_path):
         files_map[root] = files
     for key in files_map.keys():
         files = files_map[key]
         for file in files:
-            if isTargetFile(file, key):
-                print("Formating: [ " + key + "/" + file + " ]")
+            if file.split('.')[-1] in file_type_list:
+                if show_process_info == 'on':
+                    print("Formating: [ " + key + "/" + file + " ]")
                 os.system("clang-format -style=google -i " + key + "/" + file)
 
-def check_new_commit():
-    gc_1 = "git log -2 --pretty=oneline"
-    gc_2 = "git diff {0} {1} --name-only"
-    commits = os.popen(gc_1)
-    commit_array = []
-    for commit in commits:
-        commit_array.append(commit.split(" ")[0])
-    if len(commit_array) == 1:
-        file_name_walk("./")
-    else:
-        diff_info = os.popen(gc_2.format(commit_array[0], commit_array[1]))
-        for line in diff_info:
-            if isTargetFile(line.rstrip()):
-                os.system("clang-format -style=google -i " + "./" + line)
 
-def check_all_file():
-    file_name_walk("./")
-
+def main(argv):
+    parser = argparse.ArgumentParser(argv, "code style check")
+    parser.add_argument('-path', '-p', help=PATH_HELP, default='.', required=False)
+    parser.add_argument('-verbose', '-v',help=VERBOSE_HELP, default='off', required=False)
+    parser.add_argument('-language', '-l', help=FILE_TYPE_HELP, default='all', required=False)   
+    args = parser.parse_args()
+    file_type_list = config.checkFile(args.language).getFileType()
+    file_path = args.path
+    show_process_info = args.verbose
+    check_file(file_path, file_type_list, show_process_info)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        check_new_commit()
-    
-    else:
-        for param in sys.argv[1:]:
-            if param == "all":
-                check_all_file()
+    main(sys.argv)
             
             
 
