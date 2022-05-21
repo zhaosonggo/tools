@@ -8,6 +8,9 @@ import sys
 import argparse
 import config
 
+
+CHECK_MODE = '0 [default]: Check all files \
+              1 :Check new commit change files'
 PATH_HELP = 'The path where the formatted code file is located. \n\t The default path is the current one'
 VERBOSE_HELP = 'Whether to visualize the inspection process,on or off[default]'
 FILE_TYPE_HELP = "file Type\
@@ -22,6 +25,20 @@ def isIgnored(item, ignored_list):
         if os.path.samefile(item, i):
             return True
     return False
+
+
+def getCommitDiffInfo():
+    commit_change_info = os.popen("git show --raw").readlines()
+    change_file_list = []
+    index = len(commit_change_info) - 1
+    while index >= 0:
+        if commit_change_info[index] == "\n":
+            break
+        else:
+            item = commit_change_info[index].split()[-1]
+            change_file_list.append(item)
+        index -= 1
+    return change_file_list
 
 
 def runCheck(path, process):
@@ -53,18 +70,25 @@ def runCheck(path, process):
             runCheck(file_name, process)
 
 
-def check_file(file, file_type_list, show_process_info):
-    def format_check(file):
-        if file.split('.')[-1] in file_type_list:
+def check_file(file, file_type_list, show_process_info, mode):
+    def format_check(file_):
+        if file_.split('.')[-1] in file_type_list:
             if show_process_info == 'on':
-                print("Formating: [ " + file + " ]")
-            os.system("clang-format -style=google -i " + file)
-    runCheck(file, format_check)
-
+                print("Formating: [ " + file_ + " ]")
+            os.system("clang-format -style=google -i " + file_)
+    if mode == "0":
+        runCheck(file, format_check)
+        return
+    if mode == "1":
+        file_list = getCommitDiffInfo()
+        for item in file_list:
+            runCheck(item, format_check)
+        return
 
 
 def main(argv):
     parser = argparse.ArgumentParser(argv, "code style check")
+    parser.add_argument('-mode', '-m', help=CHECK_MODE, default='0', required=False)
     parser.add_argument('-path', '-p', help=PATH_HELP, default='.', required=False)
     parser.add_argument('-verbose', '-v',help=VERBOSE_HELP, default='off', required=False)
     parser.add_argument('-language', '-l', help=FILE_TYPE_HELP, default='all', required=False)   
@@ -72,13 +96,13 @@ def main(argv):
     file_type_list = config.checkFile(args.language).getFileType()
     file_path = args.path
     show_process_info = args.verbose
-    check_file(file_path, file_type_list, show_process_info)
+    mode = args.mode
+    check_file(file_path, file_type_list, show_process_info, mode)
 
 
 if __name__ == "__main__":
     main(sys.argv)
-            
-            
+
 
 
 
