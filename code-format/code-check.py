@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Copyright by OSCode in 2021, All Rights Reserved.
 
 import os
@@ -15,17 +17,50 @@ FILE_TYPE_HELP = "file Type\
             o[object c]"
 
 
-def check_file(file_path, file_type_list, show_process_info):
-    files_map = {}
-    for root, _, files in os.walk(file_path):
-        files_map[root] = files
-    for key in files_map.keys():
-        files = files_map[key]
-        for file in files:
-            if file.split('.')[-1] in file_type_list:
-                if show_process_info == 'on':
-                    print("Formating: [ " + key + "/" + file + " ]")
-                os.system("clang-format -style=google -i " + key + "/" + file)
+def isIgnored(item, ignored_list):
+    for i in ignored_list:
+        if os.path.samefile(item, i):
+            return True
+    return False
+
+
+def runCheck(path, process):
+    # 如果路径指向一个文件，直接进行操作
+    if os.path.isfile(path):
+        process(path)
+    # 如果指向一个路径
+    if os.path.isdir(path):
+        # 获取路径下所有的子节点名称
+        file_list = os.listdir(path)
+        # 需要检查的文件列表，默认为所有都需要检查
+        check_file_list = file_list[:]
+        # 如果当前目录下具有文件.checkignore
+        # 就需要进行check_file_list的文件筛选
+        if ".checkignore" in file_list:
+            ignored_file = []
+            ignore_file_path = os.path.join(path, ".checkignore")
+            fd = open(ignore_file_path)
+            # 生成被忽略的文件列表
+            for ignore_item in fd.readlines():
+                ignored_file.append(os.path.join(path, ignore_item).rstrip())
+            # .checkignore 本身应该被忽略
+            ignored_file.append(ignore_file_path)
+            # 过滤check_file
+            check_file_list = [item for item in file_list if not isIgnored(os.path.join(path, item), ignored_file)]
+        for file in check_file_list:
+            file_name = os.path.join(path, file)
+            # 递归
+            runCheck(file_name, process)
+
+
+def check_file(file, file_type_list, show_process_info):
+    def format_check(file):
+        if file.split('.')[-1] in file_type_list:
+            if show_process_info == 'on':
+                print("Formating: [ " + file + " ]")
+            os.system("clang-format -style=google -i " + file)
+    runCheck(file, format_check)
+
 
 
 def main(argv):
