@@ -22,8 +22,12 @@ FILE_TYPE_HELP = "file Type\
 
 def isIgnored(item, ignored_list):
     for i in ignored_list:
-        if os.path.samefile(item, i):
-            return True
+        try:
+            if os.path.samefile(item, i):
+                return True
+        except:
+            # if i is not exist, continue
+            continue
     return False
 
 
