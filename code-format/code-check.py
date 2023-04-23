@@ -32,7 +32,7 @@ def isIgnored(item, ignored_list):
 
 
 def getCommitDiffInfo():
-    commit_change_info = os.popen("git show --raw").readlines()
+    commit_change_info = os.popen("git diff HEAD^ --name-only").readlines()
     change_file_list = []
     index = len(commit_change_info) - 1
     while index >= 0:
@@ -78,7 +78,7 @@ def check_file(file, file_type_list, show_process_info, mode):
     def format_check(file_):
         if file_.split('.')[-1] in file_type_list:
             if show_process_info == 'on':
-                print("Formating: [ " + file_ + " ]")
+                print("\033[32mFormating:[\033[0m " + file_ + " \033[32m]\033[0m")
             os.system("clang-format -style=google -i " + file_)
     if mode == "0":
         runCheck(file, format_check)
