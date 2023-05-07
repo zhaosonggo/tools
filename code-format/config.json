@@ -1,0 +1,74 @@
+{
+    "version": "1.0",
+    "name": "代码格式化",
+    "description": "遵循google-style来对代码风格进行检查",
+    "creator": "zhaosonggo@163.com",
+    "helps": {
+        "mode": {
+            "shorthand": "m",
+            "required": false,
+            "default": 0,
+            "description": "设置检查文件的范围",
+            "values": [
+                {
+                    "value": 0,
+                    "description": "检查所有的文件"
+                },
+                {
+                    "value": 1,
+                    "description": "只检查当前commit涉及到的文件"
+                }
+            ]
+        },
+        "path": {
+            "shorthand": "p",
+            "required": false,
+            "default": 0,
+            "description": "设置待检查文件所在的目录",
+            "values": [
+                {
+                    "value": ".",
+                    "description": "当前目录"
+                },
+                {
+                    "need_support": true,
+                    "description": "指定目录"
+                }
+            ]
+        },
+        "verbose": {
+            "shorthand": "v",
+            "required": false,
+            "default": 0,
+            "description": "是否将格式化过程输出日志",
+            "values": [
+                {
+                    "value": "off",
+                    "description": "不输出任何信息"
+                },
+                {
+                    "value": "on",
+                    "description": "输出格式化的日志"
+                }
+            ]
+        },
+        "language": {
+            "shorthand": "l",
+            "required": false,
+            "default": 0,
+            "description": "设置需要检查的文件类型",
+            "values": [
+                {
+                    "default": true,
+                    "value": "all",
+                    "description": "检查所有类型的文件"
+                },
+                {
+                    "value": "c|j|o or combined",
+                    "description": "c: c++ or c, j: java, o: mm or m. 同时可以结合，例如cjo, 代表同时检查c++，java和oc文件"
+                }
+            ]
+        }
+    },
+    "deps": []
+}
