@@ -16,6 +16,11 @@ UML_FILE_SUFFIX = ".uml"
 JAR_NAME = "plantuml-1.2023.6.jar"
 JAR_PATH = os.path.join(sys.path[0], JAR_NAME)
 
+if not os.path.exists(os.path.join(sys.path[0], JAR_NAME)):
+    current_path = os.getcwd()
+    os.chdir(sys.path[0])
+    os.system("tar -zxvf {0}.tar.gz".format(JAR_NAME))
+
 
 def createUML(files, verbose, out):
     if os.path.isfile(out):
